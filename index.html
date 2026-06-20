@@ -20,7 +20,9 @@
   header.top{
     position:sticky;top:0;z-index:20;background:rgba(13,17,23,0.95);
     backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:16px 20px;
+    transform:translateY(0);transition:transform .25s ease;
   }
+  header.top.hide{transform:translateY(-100%);}
   .title{font-size:1.3rem;font-weight:700;color:var(--text);text-align:center;}
   .title .accent{color:var(--accent);}
   .container{max-width:760px;margin:0 auto;padding:0 16px;}
@@ -46,7 +48,10 @@
     background:#161b22;border:1px solid var(--border);border-radius:12px;
     padding:14px 16px;margin:16px auto 0;font-size:0.78rem;color:var(--text-mute);
     line-height:1.6;max-width:760px;
+    transition:max-height .25s ease,opacity .2s ease,margin .25s ease,padding .25s ease;
+    overflow:hidden;max-height:200px;
   }
+  .note-box.hide{max-height:0;opacity:0;margin-top:0;padding-top:0;padding-bottom:0;border-width:0;}
   .note-box .nt{color:var(--accent);font-weight:700;}
   /* ── Mode Biasa ── */
   #biasa-view .cards{
@@ -137,7 +142,7 @@
 </style>
 </head>
 <body>
-<header class="top">
+<header class="top" id="top-header">
   <div class="title">Latihan Soal <span class="accent">Biokim 2G</span></div>
   <div class="container controls">
     <div class="row mode-toggle">
@@ -156,7 +161,7 @@
     </div>
   </div>
 </header>
-<div class="note-box container">
+<div class="note-box container" id="note-box">
   <span class="nt">Dotleav's note*:</span> Latihan soal ini dibuat berdasarkan OV, Laporan praktikum dan juga AI. Soal bertujuan untuk dijadikan alat latihan dan tidak menjamin Responsi akan sama persis.
 </div>
 <div id="biasa-view">
@@ -515,6 +520,54 @@
   }
   saveState();
   render();
+
+  // ── Auto-hide header on scroll (Mode Biasa only) ──
+  const topHeader = document.getElementById('top-header');
+  const noteBox   = document.getElementById('note-box');
+  let lastScrollY = window.scrollY;
+  let scrollTicking = false;
+  const HIDE_THRESHOLD = 12;   // px scrolled down before hiding
+  const SHOW_THRESHOLD = 6;    // px scrolled up before showing
+
+  function applyHeaderVisibility(hidden){
+    topHeader.classList.toggle('hide', hidden);
+    noteBox.classList.toggle('hide', hidden);
+  }
+
+  function onScroll(){
+    if(state.mode!=='biasa'){ scrollTicking=false; return; }
+    const y = Math.max(0, window.scrollY);
+    const diff = y - lastScrollY;
+    if(y<=0){
+      applyHeaderVisibility(false);
+    } else if(diff>HIDE_THRESHOLD){
+      applyHeaderVisibility(true);
+      lastScrollY=y;
+    } else if(diff<-SHOW_THRESHOLD){
+      applyHeaderVisibility(false);
+      lastScrollY=y;
+    }
+    scrollTicking=false;
+  }
+
+  window.addEventListener('scroll', ()=>{
+    if(!scrollTicking){
+      requestAnimationFrame(onScroll);
+      scrollTicking=true;
+    }
+  }, {passive:true});
+
+  // Reset visibility whenever mode switches back to biasa
+  const origSetMode = setMode;
+  setMode = function(m){
+    origSetMode(m);
+    if(m==='biasa'){
+      lastScrollY = window.scrollY;
+      applyHeaderVisibility(false);
+    }
+  };
+  document.getElementById('mode-biasa-btn').onclick   = ()=>setMode('biasa');
+  document.getElementById('mode-tentamen-btn').onclick = ()=>setMode('tentamen');
 })();
 </script>
 </body>

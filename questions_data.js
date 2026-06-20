@@ -372,7 +372,7 @@ window.QUESTIONS = [
     "group": "hitung",
     "question": "Tn. A, 25 tahun, laki-laki. TB 160 cm, BB 54 kg. Gunakan rumus BSA untuk kebutuhan cairan.\n\nHitung kebutuhan cairan harian Tn. A menggunakan rumus BSA!",
     "rumus": "Cairan = √[(TB (cm) × BB (kg)) / 3600] × 1500 mL",
-    "answer": "",
+    "answer": "Kebutuhan air = √[(160 × 54) / 3600] × 1500\n= √(8640 / 3600) × 1500\n= √2,4 × 1500\n≈ 1,549 × 1500\n≈ 2.324 mL/hari",
     "needsTable": false
   },
   {
@@ -386,7 +386,7 @@ window.QUESTIONS = [
   {
     "id": 54,
     "group": "hitung",
-    "question": "Tn. B, 35 tahun, laki-laki. BBI = 58,5 kg, TB 165 cm. Aktivitas sangat ringan (FA=1,3). kondisi: tidak ada stres klinis (tentukan faktor stres dari tabel di bawah). Hitung BMR Tn. B menggunakan BBI!",
+    "question": "Tn. B, 35 tahun, laki-laki. BBI = 58,5 kg, TB 165 cm. Aktivitas sangat ringan (FA=1,3). Faktor stres: tidak ada stres klinis (tentukan nilai faktor stres yang sesuai dari tabel referensi di bawah). Hitung BMR Tn. B menggunakan BBI!",
     "rumus": "BMR pria = 66,5 + (13,7 × BBI) + (5 × TB) – (6,8 × usia)",
     "answer": "BMR = 66,5 + (13,7×58,5) + (5×165) – (6,8×35)\n= 66,5 + 801,45 + 825 – 238\n= 1.454,95 kkal/hari",
     "needsTable": true
@@ -436,7 +436,7 @@ window.QUESTIONS = [
     "group": "hitung",
     "question": "Ny. Z, 45 tahun, perempuan. TEE ≈ 2.111 kkal/hari. BBI = 54 kg. Gunakan pendekatan 35 mL/kgBB/hari untuk kebutuhan cairan.\n\nHitung kebutuhan cairan harian Ny. Z!",
     "rumus": "Kebutuhan cairan = 35 mL × BBI (kg)",
-    "answer": "",
+    "answer": "Kebutuhan cairan = 35 mL × 54 kg\n= 1.890 mL/hari",
     "needsTable": false
   },
   {
@@ -444,7 +444,7 @@ window.QUESTIONS = [
     "group": "lanjutan",
     "question": "Tn. C, 50 tahun, laki-laki, penderita DM tipe 2, bekerja sebagai guru (aktivitas ringan, FA=1,65). BB aktual 70 kg, TB 170 cm. Status gizi normal. Tidak ada kondisi stres klinis (FS=1,3).\n\nHitung IMT Tn. C dan tentukan kategori status gizinya (Asia-Pasifik)!",
     "rumus": "IMT (kg/m²) = BB (kg) / [TB (m)]²",
-    "answer": "IMT = 70 / (1,70)²\n= 70 / 2,89\n= 24,22 kg/m²\n→ Kategori: Normal (18,5–22,9... mendekati batas atas; beberapa sumber Asia-Pasifik menyebut 23–24,9 = overweight)",
+    "answer": "IMT = 70 / (1,70)²\n= 70 / 2,89\n= 24,22 kg/m²\n→ Kategori: Overweight (Kelebihan berat badan) berdasarkan klasifikasi Asia-Pasifik (≥ 23 kg/m²).",
     "needsTable": true
   },
   {
@@ -596,7 +596,7 @@ window.QUESTIONS = [
     "group": "lanjutan",
     "question": "Ny. L, 38 tahun, perempuan, pekerja konstruksi (aktivitas berat, FA=2,00). BB 52 kg, TB 155 cm. Tidak ada stres klinis . Distribusi energi: KH 65%, Protein 20%, Lemak 15%. Hitung kebutuhan cairan harian Ny. L menggunakan pendekatan 35 mL/kgBB/hari (gunakan BB aktual)!",
     "rumus": "Kebutuhan cairan = 35 mL × BB aktual (kg)",
-    "answer": "",
+    "answer": "Kebutuhan cairan = 35 mL × 52 kg\n= 1.820 mL/hari",
     "needsTable": true
   }
 ];

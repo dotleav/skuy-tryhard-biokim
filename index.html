@@ -534,17 +534,26 @@
     noteBox.classList.toggle('hide', hidden);
   }
 
+  let headerHidden = false;
+
   function onScroll(){
     if(state.mode!=='biasa'){ scrollTicking=false; return; }
     const y = Math.max(0, window.scrollY);
     const diff = y - lastScrollY;
+
     if(y<=0){
-      applyHeaderVisibility(false);
-    } else if(diff>HIDE_THRESHOLD){
+      if(headerHidden){ headerHidden=false; applyHeaderVisibility(false); }
+    } else if(diff>HIDE_THRESHOLD && !headerHidden){
+      headerHidden=true;
       applyHeaderVisibility(true);
-      lastScrollY=y;
-    } else if(diff<-SHOW_THRESHOLD){
+    } else if(diff<-SHOW_THRESHOLD && headerHidden){
+      headerHidden=false;
       applyHeaderVisibility(false);
+    }
+
+    // Resync the reference point whenever we've reacted (or could have reacted)
+    // to the movement — prevents drift from causing a delayed/duplicate toggle.
+    if(Math.abs(diff)>Math.min(HIDE_THRESHOLD,SHOW_THRESHOLD)){
       lastScrollY=y;
     }
     scrollTicking=false;

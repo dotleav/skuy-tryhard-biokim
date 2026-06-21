@@ -108,7 +108,7 @@ window.QUESTIONS = [
     "id": "14c",
     "group": "overview",
     "question": "Tuliskan rumus Berat Badan Ideal (BBI) menggunakan rumus Broca untuk Perempuan dengan tinggi diatas 150!",
-    "answer": "BBI = (TB – 100) – [15% × (TB – 100)] Atau 85% × (TB – 100)",
+    "answer": "BBI = (TB – 100) – [10% × (TB – 100)] Atau 90% × (TB – 100)",
     "needsTable": false
   },
   {

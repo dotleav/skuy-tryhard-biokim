@@ -96,6 +96,29 @@
   /* ── Mode Tentamen ── */
   #tentamen-view{display:none;max-width:760px;margin:0 auto;padding:16px 16px 40px;}
   #tentamen-view.active{display:block;}
+  #level-select-overlay{
+    display:none;flex-direction:column;align-items:center;gap:20px;padding:30px 16px 50px;
+  }
+  #level-select-overlay.active{display:flex;}
+  .level-title{font-size:1.15rem;font-weight:700;color:var(--text);text-align:center;}
+  .level-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:560px;
+  }
+  @media(max-width:540px){.level-grid{grid-template-columns:1fr;}}
+  .level-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:18px 16px;text-align:left;cursor:pointer;transition:all .15s;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .level-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .level-emoji{font-size:1.6rem;}
+  .level-name{font-weight:700;color:var(--text);font-size:0.98rem;}
+  .level-time{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--blue);font-weight:600;}
+  .level-sub{font-size:0.76rem;color:var(--text-mute);line-height:1.4;}
+  .level-badge{
+    text-align:center;font-size:0.72rem;color:var(--text-faint);margin-bottom:10px;
+  }
+  .level-badge b{color:var(--accent);}
   #countdown-overlay{
     display:none;text-align:center;padding:60px 20px;
     flex-direction:column;align-items:center;gap:16px;
@@ -182,6 +205,10 @@
   <div class="cards" id="cards"></div>
 </div>
 <div id="tentamen-view">
+  <div id="level-select-overlay">
+    <div class="level-title">Pilih Tingkat Kesulitan</div>
+    <div class="level-grid" id="level-grid"></div>
+  </div>
   <div id="countdown-overlay">
     <div class="countdown-num" id="countdown-num">5</div>
     <div class="countdown-msg" id="countdown-msg">Bersiaplah…</div>
@@ -202,6 +229,7 @@
       </div>
     </div>
     <div class="tent-progress" id="tent-progress"></div>
+    <div class="level-badge" id="level-badge"></div>
     <div class="tent-card" id="tent-card">
       <div class="tent-phase-label" id="tent-phase-label">Soal</div>
       <div class="tent-qtext" id="tent-qtext"></div>
@@ -215,6 +243,7 @@
     </div>
     <div class="tent-nav">
       <button id="tent-reveal-btn">Tampilkan Jawaban</button>
+      <button id="tent-continue-btn" style="display:none;">Lanjut ke Soal Berikutnya →</button>
       <button id="tent-skip-btn" class="ghost">⏭ Skip</button>
       <button id="tent-pause-btn" class="ghost">⏸ Pause</button>
     </div>
@@ -230,8 +259,13 @@
 <script>
 (function(){
   const ALL = window.QUESTIONS || [];
-  const Q_TIME   = 30;
-  const ANS_TIME = 5;
+  const LEVELS = {
+    cheetah:  {key:'cheetah',  emoji:'🐆', name:'Cheetah',      time:'30 detik / soal', sub:'am fast boi', qTime:30,  ansTime:5},
+    normal:   {key:'normal',   emoji:'🧍', name:'Orang Normal', time:'1 menit / soal',  sub:'dasar normies', qTime:60,  ansTime:6},
+    folivora: {key:'folivora', emoji:'🦥', name:'Folivora',     time:'5 menit / soal',  sub:'pasti pas ditanya jawabannya “hah?”', qTime:300, ansTime:10},
+    bekicot:  {key:'bekicot',  emoji:'🐌', name:'Bekicot',      time:'5–7 hari kerja',  sub:'mode biasa aja kalau gitu', qTime:null, ansTime:null},
+  };
+  let activeLevel = LEVELS.normal;
   const GROUPS = [
     {key:'semua',label:'Semua'},
     {key:'overview',label:'Soal Overview'},
@@ -284,6 +318,28 @@
   let tentQueue=[], tentIdx=0, tentTimer=null, tentSec=0;
   let tentPaused=false, tentPhase='question';
   let pausedSec=0;
+
+  function renderLevelGrid(){
+    const grid=document.getElementById('level-grid');
+    grid.innerHTML='';
+    Object.values(LEVELS).forEach(lv=>{
+      const card=document.createElement('div');
+      card.className='level-card';
+      card.innerHTML=`
+        <div class="level-emoji">${lv.emoji}</div>
+        <div class="level-name">${lv.name}</div>
+        <div class="level-time">${lv.time}</div>
+        <div class="level-sub">${lv.sub}</div>`;
+      card.onclick=()=>{ activeLevel=lv; tentStart(); };
+      grid.appendChild(card);
+    });
+  }
+
+  function showLevelSelect(){
+    renderLevelGrid();
+    showSection('level');
+  }
+
   function tentStart(){
     tentQueue = shuffleArray(ALL.map(q=>q.id)).map(id=>byId[id]);
     tentIdx   = 0;
@@ -292,6 +348,7 @@
     startCountdown();
   }
   function showSection(sec){
+    document.getElementById('level-select-overlay').classList.toggle('active', sec==='level');
     document.getElementById('countdown-overlay').classList.toggle('active', sec==='countdown');
     document.getElementById('paused-overlay').classList.toggle('active', sec==='paused');
     document.getElementById('tent-main').style.display = sec==='main'?'':'none';
@@ -328,7 +385,7 @@
     if(tentIdx>=tentQueue.length){tentFinish();return;}
     const q=tentQueue[tentIdx];
     tentPhase='question';
-    tentSec=Q_TIME;
+    tentSec=activeLevel.qTime;
     const card=document.getElementById('tent-card');
     card.classList.remove('showing-ans');
     document.getElementById('tent-phase-label').textContent='Soal';
@@ -342,16 +399,23 @@
     document.getElementById('tent-ans-text').textContent='';
     document.getElementById('ans-countdown').textContent='';
     document.getElementById('tent-reveal-btn').style.display='';
+    document.getElementById('tent-continue-btn').style.display='none';
     document.getElementById('tent-skip-btn').style.display='';
+    document.getElementById('level-badge').innerHTML=`Tingkat: <b>${activeLevel.emoji} ${activeLevel.name}</b>`;
+    document.getElementById('tent-pause-btn').style.display = activeLevel.qTime===null ? 'none' : '';
     updateProgress();
-    tentTick();
+    if(activeLevel.qTime===null){
+      document.querySelector('.timer-wrap').style.display='none';
+    } else {
+      document.querySelector('.timer-wrap').style.display='';
+      tentTick();
+    }
   }
   function tentRevealAnswer(){
     if(tentPhase==='answer') return;
     clearInterval(tentTimer);
     const q=tentQueue[tentIdx];
     tentPhase='answer';
-    tentSec=ANS_TIME;
     document.getElementById('tent-card').classList.add('showing-ans');
     document.getElementById('tent-phase-label').textContent='✓ Jawaban';
     document.getElementById('tent-phase-label').classList.add('ans-phase');
@@ -359,24 +423,32 @@
     document.getElementById('tent-ans').classList.add('visible');
     document.getElementById('tent-reveal-btn').style.display='none';
     document.getElementById('tent-skip-btn').style.display='none';
-    setRing(ANS_TIME,ANS_TIME,true);
-    document.getElementById('timer-label').textContent=ANS_TIME;
+
+    if(activeLevel.ansTime===null){
+      // Bekicot: no auto-advance, person clicks "Lanjut" whenever ready
+      document.getElementById('ans-countdown').textContent='';
+      document.getElementById('tent-continue-btn').style.display='';
+      return;
+    }
+    tentSec=activeLevel.ansTime;
+    setRing(activeLevel.ansTime,activeLevel.ansTime,true);
+    document.getElementById('timer-label').textContent=activeLevel.ansTime;
     tentTimer=setInterval(()=>{
       tentSec--;
       document.getElementById('ans-countdown').textContent=`Soal berikutnya dalam ${tentSec}s…`;
-      setRing(tentSec,ANS_TIME,true);
+      setRing(tentSec,activeLevel.ansTime,true);
       document.getElementById('timer-label').textContent=tentSec;
       if(tentSec<=0){clearInterval(tentTimer);tentIdx++;tentShowQuestion();}
     },1000);
   }
   function tentTick(){
     clearInterval(tentTimer);
-    setRing(tentSec,Q_TIME,false);
+    setRing(tentSec,activeLevel.qTime,false);
     document.getElementById('timer-label').textContent=tentSec;
     tentTimer=setInterval(()=>{
       tentSec--;
       document.getElementById('timer-label').textContent=tentSec;
-      setRing(tentSec,Q_TIME,false);
+      setRing(tentSec,activeLevel.qTime,false);
       if(tentSec<=0){clearInterval(tentTimer);tentRevealAnswer();}
     },1000);
   }
@@ -399,6 +471,7 @@
       `Soal <b>${tentIdx+1}</b> dari <b>${tentQueue.length}</b>`;
   }
   function tentPause(){
+    if(activeLevel.qTime===null) return; // Bekicot: tidak ada timer untuk dijeda
     if(tentPaused||tentPhase==='answer') return;
     clearInterval(tentTimer);
     tentPaused=true;
@@ -416,13 +489,14 @@
     clearInterval(tentTimer);
     showSection('finish');
     document.getElementById('tent-finish-msg').textContent=
-      `Kamu telah menyelesaikan semua ${tentQueue.length} soal. Kerja bagus!`;
+      `Kamu telah menyelesaikan semua ${tentQueue.length} soal pada tingkat ${activeLevel.emoji} ${activeLevel.name}. Kerja bagus!`;
   }
   document.getElementById('tent-reveal-btn').onclick = ()=>tentRevealAnswer();
+  document.getElementById('tent-continue-btn').onclick = ()=>{tentIdx++;tentShowQuestion();};
   document.getElementById('tent-skip-btn').onclick   = ()=>{clearInterval(tentTimer);tentIdx++;tentShowQuestion();};
   document.getElementById('tent-pause-btn').onclick  = ()=>tentPause();
   document.getElementById('play-btn').onclick        = ()=>tentPlay();
-  document.getElementById('tent-restart-btn').onclick= ()=>tentStart();
+  document.getElementById('tent-restart-btn').onclick= ()=>showLevelSelect();
   document.getElementById('tent-back-btn').onclick   = ()=>setMode('biasa');
   function setMode(m){
     state.mode=m;
@@ -436,7 +510,7 @@
       document.getElementById('stat-checked-wrap').style.display='none';
       document.getElementById('stat-total').textContent=ALL.length;
       clearInterval(tentTimer);
-      tentStart();
+      showLevelSelect();
     } else {
       clearInterval(tentTimer);
       document.getElementById('biasa-view').style.display='';

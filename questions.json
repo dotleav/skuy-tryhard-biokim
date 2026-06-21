@@ -93,8 +93,29 @@
   {
     "id": 14,
     "group": "overview",
-    "question": "Tuliskan rumus Berat Badan Ideal (BBI) menggunakan rumus Broca untuk laki-laki!",
-    "answer": "BBI = (TB – 100) – [10% × (TB – 100)]",
+    "question": "Tuliskan rumus Berat Badan Ideal (BBI) menggunakan rumus Broca untuk laki-laki dengan tinggi diatas 160!",
+    "answer": "BBI = (TB – 100) – [10% × (TB – 100)] Atau 90% × (TB – 100)",
+    "needsTable": false
+  },
+  {
+    "id": "14b",
+    "group": "overview",
+    "question": "Tuliskan rumus Berat Badan Ideal (BBI) menggunakan rumus Broca untuk laki-laki dengan tinggi dibawah 160!",
+    "answer": "BBI = (TB - 100)",
+    "needsTable": false
+  },
+  {
+    "id": "14c",
+    "group": "overview",
+    "question": "Tuliskan rumus Berat Badan Ideal (BBI) menggunakan rumus Broca untuk Perempuan dengan tinggi diatas 150!",
+    "answer": "BBI = (TB – 100) – [15% × (TB – 100)] Atau 85% × (TB – 100)",
+    "needsTable": false
+  },
+  {
+    "id": "14d",
+    "group": "overview",
+    "question": "Tuliskan rumus Berat Badan Ideal (BBI) menggunakan rumus Broca untuk perempian dengan tinggi dibawah 150!",
+    "answer": "BBI = (TB - 100) × 1kg",
     "needsTable": false
   },
   {
